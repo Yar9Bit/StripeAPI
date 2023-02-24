@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Buy cool new product</title>
+    <script async src="https://js.stripe.com/v3/"></script>
+    <script defer src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
+</head>
+<body>
+<section>
+    <div class="product">
+        <div class="description">
+            {% for item in items %}
+                <h3>{{ item.name }}</h3>
+                <h5>${{ item.get_display_price }}
+                    <button type="submit" id="checkout-button" value="{{ item.id }}" name="valID">Купить</button>
+                </h5>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% csrf_token %}
+</body>
+<script type="text/javascript">
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    let stripe = Stripe("{{ STRIPE_PUBLIC_KEY }}");
+    let checkoutButton = document.getElementById("checkout-button");
+    checkoutButton.addEventListener("click", function () {
+        fetch("{% url 'stripe_view' 1 %}", {
+            method: "POST",
+            headers: {
+                'X-CSRFToken': csrftoken
+            }
+        })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (session) {
+                return stripe.redirectToCheckout({sessionId: session.id});
+            })
+            .then(function (result) {
+                if (result.error) {
+                    alert(result.error.message);
+                }
+            })
+            .catch(function (error) {
+                console.error("Error:", error);
+            });
+    });
+</script>
+</html>
