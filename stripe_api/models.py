@@ -19,4 +19,4 @@ class Item(models.Model):
         return self.name
 
     def get_display_price(self):
-        return "{0:.2f}".format(self.price / 100), f'{self.currency}'
+        return "{0:.2f}".format(self.price / 100)

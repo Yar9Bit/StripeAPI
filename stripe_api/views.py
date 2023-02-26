@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.views.generic import View, TemplateView, ListView
 import stripe
 
@@ -52,13 +53,13 @@ class ItemPageView(ListView):
     context_object_name = 'items'
 
     def get_context_data(self, **kwargs):
-        item = Item.objects.get(id=1)
         context = super().get_context_data(**kwargs)
+        item_id = self.request.POST.get('val', 1)
+        item = get_object_or_404(Item, id=item_id)
         context.update(
             {
                 "item": item,
                 "STRIPE_PUBLIC_KEY": settings.STRIPE_PUBLIC_KEY,
-                "fetch_item_id": 'fetch_item_id',
             }
         )
         return context
